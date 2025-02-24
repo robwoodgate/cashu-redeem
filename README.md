@@ -17,7 +17,7 @@ npm i
 
 ## Build
 
-Changes to main.js can be packaged and saved to assets/js/nostrly-cashu.min.js by running:
+Changes to src/main.js can be packaged and saved to public/nostrly-cashu.min.js by running:
 
 ```
 npm run build

@@ -11,7 +11,7 @@ export default {
   },
   output: {
     filename: '[name].min.js',
-    path: path.resolve(__dirname, 'assets/js'),
+    path: path.resolve(__dirname, 'public'),
   },
   mode: 'production',
   optimization: {
