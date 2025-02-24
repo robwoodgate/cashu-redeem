@@ -31,10 +31,11 @@ body {
   min-height: 100vh;
 }
 
-#app {
+#cashu-redeem {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
+  text-align: center;
   text-align: center;
 }
 
@@ -59,7 +60,7 @@ p {
 
 a {
   font-weight: 500;
-  color: var(--color-a);
+  color: var(--color-b);
   text-decoration: inherit;
 }
 
@@ -111,7 +112,7 @@ button.button-primary,
 input[type='submit'].button-primary,
 input[type='reset'].button-primary,
 input[type='button'].button-primary {
-  color: var(--color-fg);
+  color: #f9f9f9;
   background-color: var(--color-a);
   border-color: var(--color-bg);
 }
@@ -134,12 +135,15 @@ input[type='button'].button-primary:focus {
 button,
 .button {
   margin-bottom: 1rem;
+  color: var(--color-fg);
+  background-color: var(--color-bg);
 }
 
 input,
 textarea,
 select,
 fieldset {
+  font-size: 1.5em;
   margin-bottom: 1.5rem;
 }
 
@@ -164,84 +168,56 @@ form {
   display: none;
 }
 
-#token,
-#lnurl {
-  display: block;
-  max-width: 80vw;
-  overflow: hidden;
-  resize: none;
-  min-height: 40px;
-  line-height: 20px;
-  margin: 0 auto;
-  font-family: monospace;
-  border: 1px solid var(--color-a);
-  padding: 1.5em;
-  border-radius: 1em;
+#cashu-redeem input,
+#cashu-redeem textarea {
+  border: 1px solid var(--color-b);
+  border-radius: 6px;
+  padding: 10px 15px;
+  width: 80vw;
 }
-
-#token[contenteditable]:empty::before {
-  content: 'Paste in your Cashu ecash token...';
-  color: gray;
+.hidden {
+  display: none;
 }
-
-#lnurl[contenteditable]:empty::before {
-  content: 'Paste Lightning invoice or LNURL or Lightning address';
-  color: gray;
-}
-
 .text-wrapper {
+  margin: 20px auto;
   position: relative;
   width: 100%;
-  max-width: 80vw;
-  margin: 20px auto;
 }
-
 .text-remover {
-  position: absolute;
-  top: 0;
-  right: 0;
-  border: none;
-  font-weight: 900;
   font-size: 20px;
-  color: var(--color-a);
+  font-weight: bolder;
+  padding: 0 10px;
+  position: absolute;
+  right: 0;
+  top: 0;
 }
-
-.text-remover:hover {
-  color: var(--color-bg);
-  background-color: var(--color-fg);
-}
-
-#tokenStatus {
-  font-size: 2.4rem;
-  line-height: 1.35;
-  letter-spacing: -0.08rem;
-  font-weight: 700;
-  color: var(--color-a);
-}
-
-#lightningStatus {
-  font-size: 2.4rem;
-  line-height: 1.35;
-  letter-spacing: -0.08rem;
-  font-weight: 700;
+#lightningStatus, #tokenStatus {
   color: var(--color-b);
+  font-size: 2.5rem;
+  font-weight: bold;
+  line-height: 1.35;
+}
+#lightningStatus {
+  font-size: 1.5rem;
 }
 
-#footerWrapper {
-  margin-top: 7rem;
-  margin-bottom: 2rem;
-  font-size: medium;
+.preamble {
+  font-size: 1.75rem;
+  margin: 0 auto 1.5rem;
+  max-width: 80vw;
+  text-align: left;
 }
-
-#redeem {
-  margin-top: 1rem;
-  font-size: 1.2rem;
-
+.disclaimer {
+  font-size: 2.25rem;
+  margin: 2.5rem auto 0;
+  max-width: 80vw;
 }
 
 @media (prefers-color-scheme: light) {
-  :root {
-    --color-bg: #f9f9f9;
-    --color-fg: #242424;
-  }
+    :root {
+        --color-bg: #f9f9f9;
+        --color-fg: #242424
+        --color-a: #37e837;
+        --color-b: #7f38ca;
+    }
 }

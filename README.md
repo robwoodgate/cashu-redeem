@@ -1,38 +1,32 @@
 # cashu-redeem
 
-Simple web app for redeeming Cashu ecash tokens to your lightning wallet. Written in Typescript using Vite.
-Use LTS node version
+This is a stand-alone open-source demo of the [Nostrly Cashu Redeem Tool](https://www.nostrly.com/cashu-redeem/).
 
-## Install
+The main script was originally written for use in a WordPress plugin, which is why it uses Javascript / jQuery.
+
+This standalone demo can be run by opening the index.html file in a browser.
+
+
+## Dev
+
+To install the required packages, run:
 
 ```
 npm i
 ```
 
-## Dev
-
-```
-npm run dev
-```
-
-Open the page on [http://localhost:5173/](http://localhost:5173/) and changes to the code will refresh on the page.
-
-## Preview
-
-```
-npm run preview
-```
-
-Builds everything and gives you a preview of the built project on localhost.
-
 ## Build
+
+Changes to main.js can be packaged and saved to assets/js/nostrly-cashu.min.js by running:
 
 ```
 npm run build
 ```
 
-Compiles the TS to JS and builds the files into a /dist folder for deployment.
-
 ## Disclaimer
 
 Cashu is still new so don't use it for money you would worry about losing. This project was just a weekend hack and could have bugs that lose your money.
+
+## Donate
+
+If you find this demo useful, please consider [buying me a drink](https://donate.cogmentis.com).

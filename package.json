@@ -1,44 +1,27 @@
 {
   "name": "cashu-redeem",
-  "private": false,
-  "version": "0.0.1",
-  "author": "Calle+SuperPhatArrow",
-  "contributors": [],
-  "license": "GPL-3.0-or-later",
-  "engines": {
-    "npm": ">=8.0.0 <9.0.0",
-    "node": ">=16.0.0 <17.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cashubtc/cashu-redeem"
-  },
-  "bugs": {
-    "url": "https://github.com/cashubtc/cashu-redeem/issues"
-  },
-  "keywords": [
-    "Bitcoin",
-    "Lightning",
-    "Cashu",
-    "Fedimint",
-    "Chaum",
-    "Ecash",
-    "LNURL"
-  ],
+  "version": "2.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+  "main": "index.js",
+  "dependencies": {
+    "@cashu/cashu-ts": "^2.2.0",
+    "@gandlaf21/bolt11-decode": "^3.1.1",
+    "canvas-confetti": "^1.9.3",
+    "jquery": "^3.7.1"
   },
   "devDependencies": {
-    "@types/axios": "^0.14.0",
-    "typescript": "^4.9.3",
-    "vite": "^4.1.0"
+    "@babel/core": "^7.25.7",
+    "@babel/preset-env": "^7.25.7",
+    "babel-loader": "^9.2.1",
+    "terser-webpack-plugin": "5.3.10",
+    "webpack": "^5.95.0",
+    "webpack-bundle-analyzer": "^4.10.2",
+    "webpack-cli": "5.1.4"
   },
-  "dependencies": {
-    "@cashu/cashu-ts": "^0.6.1",
-    "@noble/secp256k1": "^1.7.1",
-    "axios": "^1.6.2"
-  }
+  "scripts": {
+    "build": "webpack --node-env=production",
+    "build:dev": "webpack --node-env=development",
+    "analyze": "webpack --analyze"
+  },
+  "sideEffects": false
 }
