@@ -110,8 +110,13 @@ $(function($) {
       });
       console.log('unspentProofs :>>', unspentProofs);
       if (!unspentProofs.length) {
-          throw 'Token already spent';
+        // Is this our saved token? If so, remove it
+        const lstoken = localStorage.getItem("nostrly-cashu-token");
+        if (lstoken == $token.val()) {
+          localStorage.removeItem("nostrly-cashu-token");
         }
+        throw 'Token already spent';
+      }
       proofs = unspentProofs;
       tokenAmount = proofs.reduce(
         (accumulator, currentValue) =>
@@ -202,6 +207,7 @@ $(function($) {
           const change = proofsToKeep.concat(meltResponse.change);
           let newToken = getEncodedTokenV4({ mint: mintUrl, proofs: change });
           console.log('change token :>> ', newToken);
+          localStorage.setItem("nostrly-cashu-token", newToken);
           setTimeout(() => {
             $redeemButton.prop("disabled", true);
             $lnurlRemover.addClass('hidden');
@@ -253,9 +259,13 @@ $(function($) {
   // Allow auto populate fields
   let params = new URL(document.location.href).searchParams;
   const token = decodeURIComponent(params.get('token') ?? '');
+  const lstoken = localStorage.getItem("nostrly-cashu-token");
   const to = decodeURIComponent(params.get('ln') || params.get('lightning') || params.get('to') || '');
-  if (token) {
+  if (token) { // Try URL token first...
     $token.val(token);
+    processToken();
+  } else if (lstoken) { // ... Saved change second
+    $token.val(lstoken);
     processToken();
   }
   if (to) {
