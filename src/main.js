@@ -133,6 +133,13 @@ $(function($) {
       let params = new URL(document.location.href).searchParams;
       let autopay = decodeURIComponent(params.get('autopay') ?? '');
       if (autopay && $lnurl.val().length) {
+        // Clear URL params if this is a repeat (eg: page refresh)
+        let lastpay = localStorage.getItem("nostrly-cashu-last-autopay");
+        if (lastpay == $lnurl.val()) {
+          window.location.href = window.location.origin + window.location.pathname;
+        }
+        // Update last autopay destination
+        localStorage.setItem("nostrly-cashu-last-autopay", $lnurl.val());
         await makePayment();
       }
     } catch (err) {
