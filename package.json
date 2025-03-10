@@ -4,16 +4,15 @@
   "type": "module",
   "main": "index.js",
   "dependencies": {
-    "@cashu/cashu-ts": "^2.2.1",
+    "@cashu/cashu-ts": "^2.2.2",
     "@gandlaf21/bolt11-decode": "^3.1.1",
     "canvas-confetti": "^1.9.3",
     "jquery": "^3.7.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.7",
-    "@babel/preset-env": "^7.25.7",
-    "babel-loader": "^9.2.1",
     "terser-webpack-plugin": "5.3.10",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.2",
     "webpack": "^5.95.0",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "5.1.4"

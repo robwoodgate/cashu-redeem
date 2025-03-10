@@ -1,19 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "module": "ESNext",
-    "lib": ["ESNext", "DOM"],
-    "moduleResolution": "Node",
-    "strict": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "noEmit": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "skipLibCheck": true
+    "target": "es6",              // Output JavaScript version
+    "module": "esnext",           // Module system (matches Webpack)
+    "strict": true,               // Enable strict type checking
+    "esModuleInterop": true,      // Better interop with JS modules
+    "skipLibCheck": true,         // Speed up compilation
+    "outDir": "./dist",           // Output directory (optional)
+    "rootDir": "./src",           // Source directory
+    "noEmitOnError": true         // Don't emit JS if there are errors
   },
-  "include": ["src", "api", "lib/bolt11/bolt11.ts", "lib/bech32/bech32.ts"]
+  "include": ["src/**/*"],        // Files to compile
+  "exclude": ["node_modules"]     // Files to ignore
 }

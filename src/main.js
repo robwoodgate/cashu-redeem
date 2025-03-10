@@ -4,6 +4,7 @@ import { decode } from "@gandlaf21/bolt11-decode";
 import bech32 from 'bech32';
 import $ from "jquery"; // We are not in WordPress now, Dorothy...
 import confetti from 'canvas-confetti';
+import { encode as emojiEncode, decode as emojiDecode } from './emoji-encoder.ts';
 
 // Cashu Redeem
 $(function($) {
@@ -17,7 +18,6 @@ $(function($) {
   const $token = $("#token");
   const $tokenStatus = $("#tokenStatus");
   const $lightningStatus = $("#lightningStatus");
-  const $lightningSection = $("#lightningSection");
   const $tokenRemover = $('#tokenRemover');
   const $lnurlRemover = $('#lnurlRemover');
   const $redeemButton = $('#redeem');
@@ -77,7 +77,6 @@ $(function($) {
   const processToken = async (event) => {
     if (event) event.preventDefault();
     $tokenRemover.removeClass('hidden');
-    $lightningSection.addClass('hidden');
     $tokenStatus.text('Checking token, one moment please...');
     $lightningStatus.text('');
     try {
@@ -86,9 +85,20 @@ $(function($) {
         $tokenStatus.text('');
         $tokenRemover.addClass('hidden');
         $redeemButton.prop("disabled", true);
+        tokenAmount = 0;
         return;
       }
-      const token = getDecodedToken(tokenEncoded);
+      let token; // scope
+      try {
+        token = getDecodedToken(tokenEncoded);
+      } catch(err) {
+        // Try decoding as an emoji, update token input before
+        // token decode attempt as it throws an error on fail
+        const emoji = emojiDecode(tokenEncoded);
+        $token.val(emoji);
+        console.log('emoji:>>', emoji);
+        token = getDecodedToken(emoji); // throws on fail
+      }
       console.log('token :>> ', token);
       if (!token.proofs.length || !token.mint.length) {
         throw 'Token format invalid';
@@ -115,8 +125,8 @@ $(function($) {
         if (lstoken == $token.val()) {
           localStorage.removeItem("nostrly-cashu-token");
         }
-        throw 'Token already spent';
-      }
+          throw 'Token already spent';
+        }
       proofs = unspentProofs;
       tokenAmount = proofs.reduce(
         (accumulator, currentValue) =>
@@ -127,8 +137,11 @@ $(function($) {
       $tokenStatus.text(
         `Token value ${tokenAmount} sats from the mint: ${mintHost}`
       );
-      $lightningSection.removeClass('hidden');
-      $lightningStatus.text('Redeem to address / pay invoice...');
+      // $lightningStatus.text('Redeem to address / pay invoice...');
+      // Enable redeem button if lnurl is already set
+      if ($lnurl.val()) {
+        $redeemButton.prop("disabled", false);
+      }
       // Autopay?
       let params = new URL(document.location.href).searchParams;
       let autopay = decodeURIComponent(params.get('autopay') ?? '');
@@ -239,8 +252,8 @@ $(function($) {
     $tokenStatus.text('');
     $lightningStatus.text('');
     $tokenRemover.addClass('hidden');
-    $lightningSection.addClass('hidden');
     $redeemButton.prop("disabled", true);
+    tokenAmount = 0;
   });
   $lnurlRemover.on("click", (e) => {
     e.preventDefault();
@@ -269,13 +282,16 @@ $(function($) {
   const lstoken = localStorage.getItem("nostrly-cashu-token");
   const to = decodeURIComponent(params.get('ln') || params.get('lightning') || params.get('to') || '');
   if (token) { // Try URL token first...
+    $(".preamble").hide();
     $token.val(token);
     processToken();
   } else if (lstoken) { // ... Saved change second
+    $(".preamble").hide();
     $token.val(lstoken);
     processToken();
   }
   if (to) {
+    $(".preamble").hide();
     $lnurl.val(to);
     $lnurl.trigger('input');
   }

@@ -21,4 +21,13 @@ export default {
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
     modules: ['node_modules'],
   },
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,           // Match .ts and .tsx files
+        use: 'ts-loader',          // Use ts-loader to compile
+        exclude: /node_modules/,   // Skip node_modules
+      },
+    ],
+  },
 };
