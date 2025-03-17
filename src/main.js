@@ -7,6 +7,7 @@ import {
   getEncodedTokenV4,
 } from "@cashu/cashu-ts";
 import { decode } from "@gandlaf21/bolt11-decode";
+import { nip19 } from "nostr-tools";
 import bech32 from "bech32";
 import $ from "jquery"; // We are not in WordPress now, Dorothy...
 import confetti from "canvas-confetti";
@@ -27,6 +28,8 @@ $(function ($) {
   const $token = $("#token");
   const $tokenStatus = $("#tokenStatus");
   const $lightningStatus = $("#lightningStatus");
+  const $pkey = $("#pkey");
+  const $pkeyWrapper = $("#pkeyWrapper");
   const $tokenRemover = $("#tokenRemover");
   const $lnurlRemover = $("#lnurlRemover");
   const $redeemButton = $("#redeem");
@@ -93,6 +96,7 @@ $(function ($) {
       if (!tokenEncoded) {
         $tokenStatus.text("");
         $tokenRemover.addClass("hidden");
+        $pkeyWrapper.hide();
         $redeemButton.prop("disabled", true);
         tokenAmount = 0;
         return;
@@ -122,7 +126,7 @@ $(function ($) {
       console.log("proofs :>>", proofs);
       const spentProofs = await wallet.checkProofsStates(proofs);
       console.log("spentProofs :>>", spentProofs);
-      // Check state of token's proofs
+      // Check state of token's proofs``
       let unspentProofs = [];
       spentProofs.forEach((state, index) => {
         if (state.state == CheckStateEnum.UNSPENT) {
@@ -152,10 +156,32 @@ $(function ($) {
         (accumulator, currentValue) => accumulator + currentValue.amount,
         0,
       );
+      // Check proofs are not P2PK locked
+      const lockedProofs = proofs.filter(function (k) {
+        return k.secret.includes("P2PK");
+      });
+      console.log("lockedProofs:>>", lockedProofs);
+      if (lockedProofs.length) {
+        console.log("P2PK locked proofs found");
+        $pkeyWrapper.show();
+        if (!$pkey.val()) {
+          $tokenStatus.text("Token is P2PK locked. Enter your private key.");
+          const p2pkSecret = JSON.parse(lockedProofs[0].secret); // first one
+          const npub = nip19.npubEncode(p2pkSecret[1].data.slice(2));
+          $lightningStatus.html(
+            `Locked to <a href="https://njump.me/${npub}" target="_blank">${npub.substring(0, 12)}...`,
+          );
+          return;
+        }
+      } else {
+        $pkeyWrapper.hide();
+        $pkey.val("");
+      }
       let mintHost = new URL(mintUrl).hostname;
       $tokenStatus.text(
         `Token value ${tokenAmount} sats from the mint: ${mintHost}`,
       );
+      // $lightningStatus.text('Redeem to address / pay invoice...');
       // Enable redeem button if lnurl is already set
       if ($lnurl.val()) {
         $redeemButton.prop("disabled", false);
@@ -234,6 +260,17 @@ $(function ($) {
         `Sending ${meltQuote.amount} sats (plus ${meltQuote.fee_reserve} sats network fees) via Lightning`,
       );
 
+      // Convert nsec to hex if needed
+      let privkey = $pkey.val();
+      if (privkey && privkey.startsWith("nsec1")) {
+        const { type, data } = nip19.decode(privkey);
+        // NB: nostr-tools doesn't hex string nsec automatically
+        if (type === "nsec" && data.length === 32) {
+          privkey = toHexString(data);
+        }
+      }
+      console.log("privkey:>>", privkey);
+
       // CashuWallet.send performs coin selection and swaps the proofs with the mint
       // if no appropriate amount can be selected offline. We must include potential
       // ecash fees that the mint might require to melt the resulting proofsToSend later.
@@ -242,6 +279,7 @@ $(function ($) {
         proofs,
         {
           includeFees: true,
+          privkey: privkey,
         },
       );
       console.log("proofsToKeep :>> ", proofsToKeep);
@@ -284,6 +322,8 @@ $(function ($) {
     $tokenRemover.addClass("hidden");
     $redeemButton.prop("disabled", true);
     tokenAmount = 0;
+    $pkeyWrapper.hide();
+    $pkey.val("");
   });
   $lnurlRemover.on("click", (e) => {
     e.preventDefault();
@@ -300,6 +340,14 @@ $(function ($) {
       $lnurlRemover.addClass("hidden");
       $redeemButton.prop("disabled", true);
     }
+  });
+  // Debounce pkey input to prevent excessive mint calls
+  let timeout = null;
+  $pkey.on("input", () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      processToken();
+    }, 1000);
   });
   $redeemButton.on("click", async (event) => {
     makePayment(event);
@@ -362,5 +410,12 @@ $(function ($) {
       }
     })();
     confetti.reset();
+  }
+
+  // Utility function
+  function toHexString(bytes) {
+    return Array.from(bytes, (byte) =>
+      ("00" + (byte & 0xff).toString(16)).slice(-2),
+    ).join("");
   }
 });
