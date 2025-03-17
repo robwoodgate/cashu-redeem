@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es6",              // Output JavaScript version
-    "module": "esnext",           // Module system (matches Webpack)
-    "strict": true,               // Enable strict type checking
-    "esModuleInterop": true,      // Better interop with JS modules
-    "skipLibCheck": true,         // Speed up compilation
-    "outDir": "./dist",           // Output directory (optional)
-    "rootDir": "./src",           // Source directory
-    "noEmitOnError": true         // Don't emit JS if there are errors
+    "target": "es6", // Output JavaScript version
+    "module": "esnext", // Module system (matches Webpack)
+    "strict": true, // Enable strict type checking
+    "esModuleInterop": true, // Better interop with JS modules
+    "skipLibCheck": true, // Speed up compilation
+    "outDir": "./dist", // Output directory (optional)
+    "rootDir": "./src", // Source directory
+    "noEmitOnError": true // Don't emit JS if there are errors
   },
-  "include": ["src/**/*"],        // Files to compile
-  "exclude": ["node_modules"]     // Files to ignore
+  "include": ["src/**/*"], // Files to compile
+  "exclude": ["node_modules"] // Files to ignore
 }

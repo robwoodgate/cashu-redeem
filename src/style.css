@@ -1,6 +1,7 @@
 :root {
-  font-family: 'Raleway', 'HelveticaNeue', 'Helvetica Neue', Inter, system-ui,
-    Avenir, Helvetica, Arial, sans-serif;
+  font-family:
+    "Raleway", "HelveticaNeue", "Helvetica Neue", Inter, system-ui, Avenir,
+    Helvetica, Arial, sans-serif;
   line-height: 1.6;
   font-weight: 400;
   --color-bg: #131516;
@@ -69,9 +70,9 @@ a:hover {
 
 .button,
 button,
-input[type='submit'],
-input[type='reset'],
-input[type='button'] {
+input[type="submit"],
+input[type="reset"],
+input[type="button"] {
   display: inline-block;
   height: 38px;
   padding: 0 30px;
@@ -93,14 +94,14 @@ input[type='button'] {
 
 .button:hover,
 button:hover,
-input[type='submit']:hover,
-input[type='reset']:hover,
-input[type='button']:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+input[type="button"]:hover,
 .button:focus,
 button:focus,
-input[type='submit']:focus,
-input[type='reset']:focus,
-input[type='button']:focus {
+input[type="submit"]:focus,
+input[type="reset"]:focus,
+input[type="button"]:focus {
   color: var(--color-a);
   border-color: var(--color-a);
   outline: 0;
@@ -108,9 +109,9 @@ input[type='button']:focus {
 
 .button.button-primary,
 button.button-primary,
-input[type='submit'].button-primary,
-input[type='reset'].button-primary,
-input[type='button'].button-primary {
+input[type="submit"].button-primary,
+input[type="reset"].button-primary,
+input[type="button"].button-primary {
   color: #f9f9f9;
   background-color: var(--color-a);
   border-color: var(--color-bg);
@@ -118,14 +119,14 @@ input[type='button'].button-primary {
 
 .button.button-primary:hover,
 button.button-primary:hover,
-input[type='submit'].button-primary:hover,
-input[type='reset'].button-primary:hover,
-input[type='button'].button-primary:hover,
+input[type="submit"].button-primary:hover,
+input[type="reset"].button-primary:hover,
+input[type="button"].button-primary:hover,
 .button.button-primary:focus,
 button.button-primary:focus,
-input[type='submit'].button-primary:focus,
-input[type='reset'].button-primary:focus,
-input[type='button'].button-primary:focus {
+input[type="submit"].button-primary:focus,
+input[type="reset"].button-primary:focus,
+input[type="button"].button-primary:focus {
   color: var(--color-fg);
   background-color: var(--color-a);
   border-color: var(--color-fg);
@@ -190,7 +191,8 @@ form {
   right: 0;
   top: 0;
 }
-#lightningStatus, #tokenStatus {
+#lightningStatus,
+#tokenStatus {
   color: var(--color-b);
   font-size: 2.5rem;
   font-weight: bold;
@@ -213,10 +215,9 @@ form {
 }
 
 @media (prefers-color-scheme: light) {
-    :root {
-        --color-bg: #f9f9f9;
-        --color-fg: #242424
-        --color-a: #37e837;
-        --color-b: #7f38ca;
-    }
+  :root {
+    --color-bg: #f9f9f9;
+    --color-fg: #242424 --color-a: #37e837;
+    --color-b: #7f38ca;
+  }
 }

@@ -10,6 +10,9 @@
     "jquery": "^3.7.1"
   },
   "devDependencies": {
+    "eslint": "^9.22.0",
+    "eslint-config-prettier": "^10.1.1",
+    "prettier": "^3.5.3",
     "terser-webpack-plugin": "5.3.10",
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.2",
@@ -20,7 +23,10 @@
   "scripts": {
     "build": "webpack --node-env=production",
     "build:dev": "webpack --node-env=development",
-    "analyze": "webpack --analyze"
+    "analyze": "webpack --analyze",
+    "lint": "eslint --ext .js ./",
+    "format": "prettier --write .",
+    "checkformat": "prettier --check ."
   },
   "sideEffects": false
 }

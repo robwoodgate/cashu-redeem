@@ -1,0 +1,6 @@
+/dist
+/public
+/node_modules
+.eslintrc.js
+babel.config.js
+**/cashu-ts/dist/**
