@@ -15,6 +15,8 @@ import {
   encode as emojiEncode,
   decode as emojiDecode,
 } from "./emoji-encoder.ts";
+import { sha256 } from "@noble/hashes/sha256";
+import { bytesToHex } from "@noble/hashes/utils";
 
 // Cashu Redeem
 $(function ($) {
@@ -22,6 +24,8 @@ $(function ($) {
   let mintUrl = "";
   let proofs = [];
   let tokenAmount = 0;
+  let params = new URL(document.location.href).searchParams;
+  let autopay = decodeURIComponent(params.get("autopay") ?? "");
 
   // DOM elements
   const $lnurl = $("#lnurl");
@@ -124,13 +128,13 @@ $(function ($) {
       await wallet.loadMint();
       proofs = token.proofs ?? [];
       console.log("proofs :>>", proofs);
-      const spentProofs = await wallet.checkProofsStates(proofs);
-      console.log("spentProofs :>>", spentProofs);
+      const proofStates = await wallet.checkProofsStates(proofs);
+      console.log("proofStates :>>", proofStates);
       // Check state of token's proofs``
       let unspentProofs = [];
-      spentProofs.forEach((state, index) => {
+      proofStates.forEach((state, index) => {
         if (state.state == CheckStateEnum.UNSPENT) {
-          console.log("UNSPENT :>>", proofs[index]);
+          // console.log("UNSPENT :>>", proofs[index]);
           unspentProofs.push(proofs[index]);
         }
       });
@@ -156,22 +160,33 @@ $(function ($) {
         (accumulator, currentValue) => accumulator + currentValue.amount,
         0,
       );
-      // Check proofs are not P2PK locked
+      // Check if proofs are P2PK locked
       const lockedProofs = proofs.filter(function (k) {
         return k.secret.includes("P2PK");
       });
-      console.log("lockedProofs:>>", lockedProofs);
       if (lockedProofs.length) {
-        console.log("P2PK locked proofs found");
-        $pkeyWrapper.show();
-        if (!$pkey.val()) {
-          $tokenStatus.text("Token is P2PK locked. Enter your private key.");
-          const p2pkSecret = JSON.parse(lockedProofs[0].secret); // first one
-          const npub = nip19.npubEncode(p2pkSecret[1].data.slice(2));
-          $lightningStatus.html(
-            `Locked to <a href="https://njump.me/${npub}" target="_blank">${npub.substring(0, 12)}...`,
-          );
-          return;
+        // they are
+        console.log("P2PK locked proofs found:>>", lockedProofs);
+        // Show the npub this token is locked to
+        const p2pkSecret = JSON.parse(lockedProofs[0].secret); // first one
+        const npub = nip19.npubEncode(p2pkSecret[1].data.slice(2));
+        $lightningStatus.html(
+          `Token is P2PK locked to <a href="https://njump.me/${npub}" target="_blank">${npub.substring(0, 12)}...`,
+        );
+        // If no signString() compatible extension detected, we'll have
+        // to ask for an nsec/private key :(
+        // Hey fiatjaf... free the nsec, it's 2025 !!!!
+        if (
+          typeof window?.nostr?.signSchnorr === "undefined" &&
+          typeof window?.nostr?.signString === "undefined"
+        ) {
+          $pkeyWrapper.show();
+          if (!$pkey.val()) {
+            $tokenStatus.html(
+              "Enter your private key or enable a <em>signString()</em> compatible Nostr Extension</a>.",
+            );
+            return;
+          }
         }
       } else {
         $pkeyWrapper.hide();
@@ -187,17 +202,14 @@ $(function ($) {
         $redeemButton.prop("disabled", false);
       }
       // Autopay?
-      let params = new URL(document.location.href).searchParams;
-      let autopay = decodeURIComponent(params.get("autopay") ?? "");
       if (autopay && $lnurl.val().length) {
         // Clear URL params if this is a repeat (eg: page refresh)
         let lastpay = localStorage.getItem("nostrly-cashu-last-autopay");
         if (lastpay == $lnurl.val()) {
           window.location.href =
             window.location.origin + window.location.pathname;
+          return; // belt+braces
         }
-        // Update last autopay destination
-        localStorage.setItem("nostrly-cashu-last-autopay", $lnurl.val());
         await makePayment();
       }
     } catch (err) {
@@ -221,6 +233,18 @@ $(function ($) {
       if (tokenAmount < 4) {
         throw "Minimum token amount is 4 sats";
       }
+      // The Alby extension can sign schnorr signatures directly - woohoo!
+      if (typeof window?.nostr?.signSchnorr !== "undefined") {
+        console.log("we can signSchnorr!");
+        await signSchnorrProofs(proofs); // sign main proofs array
+      }
+      // Support for proposed NIP-07 schnorr signer
+      // @see: https://github.com/nostr-protocol/nips/pull/1842
+      else if (typeof window?.nostr?.signString !== "undefined") {
+        console.log("we can signString!");
+        await signStringProofs(proofs); // sign main proofs array
+      }
+      console.log("signed proofs :>>", proofs);
       let invoice = "";
       let address = $lnurl.val() ?? "";
       let iterateFee = null;
@@ -266,7 +290,7 @@ $(function ($) {
         const { type, data } = nip19.decode(privkey);
         // NB: nostr-tools doesn't hex string nsec automatically
         if (type === "nsec" && data.length === 32) {
-          privkey = toHexString(data);
+          privkey = bytesToHex(data);
         }
       }
       console.log("privkey:>>", privkey);
@@ -303,6 +327,10 @@ $(function ($) {
             $token.val(newToken);
             $token.trigger("input");
           }, 5000);
+        }
+        // Update last autopay destination
+        if (autopay) {
+          localStorage.setItem("nostrly-cashu-last-autopay", invoice);
         }
       } else {
         $lightningStatus.text("Payment failed");
@@ -355,7 +383,6 @@ $(function ($) {
   });
 
   // Allow auto populate fields
-  let params = new URL(document.location.href).searchParams;
   const token = decodeURIComponent(params.get("token") ?? "");
   const lstoken = localStorage.getItem("nostrly-cashu-token");
   const to = decodeURIComponent(
@@ -412,10 +439,34 @@ $(function ($) {
     confetti.reset();
   }
 
-  // Utility function
-  function toHexString(bytes) {
-    return Array.from(bytes, (byte) =>
-      ("00" + (byte & 0xff).toString(16)).slice(-2),
-    ).join("");
+  // Sign P2PK proofs using Alby Nostr Extension
+  async function signSchnorrProofs(proofs) {
+    if (typeof window?.nostr?.signSchnorr === "undefined") return;
+    for (const [index, proof] of proofs.entries()) {
+      if (!proof.secret.includes("P2PK")) continue;
+      const hash = bytesToHex(sha256(proof.secret));
+      // console.log('hash:>>', hash);
+      const schnorr = await window.nostr.signSchnorr(hash);
+      if (schnorr.length) {
+        console.log("schnorr :>>", schnorr);
+        proofs[index].witness = JSON.stringify({ signatures: [schnorr] });
+      }
+    }
+  }
+
+  // Sign P2PK proofs using propsed NIP-07 method
+  // @see: https://github.com/nostr-protocol/nips/pull/1842
+  async function signStringProofs(proofs) {
+    if (typeof window?.nostr?.signString === "undefined") return;
+    for (const [index, proof] of proofs.entries()) {
+      if (!proof.secret.includes("P2PK")) continue;
+      const expHash = bytesToHex(sha256(proof.secret));
+      const { hash, sig, pubkey } = await window.nostr.signString(proof.secret);
+      // Check we got a signature from expected pubkey on expected hash
+      if (sig.length && proof.secret.includes(pubkey) && expHash === hash) {
+        console.log("schnorr :>>", sig);
+        proofs[index].witness = JSON.stringify({ signatures: [sig] });
+      }
+    }
   }
 });

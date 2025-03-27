@@ -60,6 +60,33 @@
         <button id="tokenRemover" class="text-remover hidden">&times;</button>
       </div>
       <div id="pkeyWrapper" class="text-wrapper hidden">
+        <label for="pkey"
+          >Compatible Extension Not Detected - Enter Private Key To Unlock
+          Token</label
+        >
+        <div class="sublabel text-wrapper">
+          Your private key is NEVER sent to our server or the mint. For maximum
+          security, however, we recommend using a
+          <a
+            href="https://github.com/nostr-protocol/nips/pull/1842"
+            target="_blank"
+            rel="noopener"
+            >signString()</a
+          >
+          compatible Nostr extension like
+          <a
+            href="https://getalby.com/products/browser-extension"
+            target="_blank"
+            rel="noopener"
+            >Alby</a
+          >, or
+          <a
+            href="https://github.com/neilck/aka-extension/"
+            target="_blank"
+            rel="noopener"
+            >AKA Profiles (v1.0.9+)</a
+          >
+        </div>
         <input
           type="text"
           placeholder="Token Private Key (P2PK / nsec)"
